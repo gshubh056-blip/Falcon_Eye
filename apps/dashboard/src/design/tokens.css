@@ -1,0 +1,352 @@
+/* FALCON Obsidian Command tokens. Font files are vendored after license verification. */
+:root {
+  color-scheme: dark;
+  --font-display: "Sora", "Arial", sans-serif;
+  --font-ui: "Geist Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Geist Mono", Consolas, monospace;
+  --font-hindi: "Noto Sans Devanagari", "Nirmala UI", sans-serif;
+
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-14: 56px;
+  --space-20: 80px;
+
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --radius-panel: 14px;
+  --radius-pill: 999px;
+
+  --type-2xs: 11px;
+  --type-xs: 12px;
+  --type-sm: 13px;
+  --type-ui: 14px;
+  --type-body: 16px;
+  --type-lg: 18px;
+  --type-h4: 20px;
+  --type-h3: 24px;
+  --type-h2: 30px;
+  --type-h1: 40px;
+  --type-display: 56px;
+
+  --line-tight: 1.2;
+  --line-normal: 1.5;
+  --line-hindi: 1.62;
+
+  --duration-micro: 120ms;
+  --duration-control: 180ms;
+  --duration-panel: 240ms;
+  --duration-route: 400ms;
+  --ease-command: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 24%);
+  --elevation-2: 0 4px 12px rgb(0 0 0 / 24%);
+  --elevation-3: 0 12px 28px rgb(0 0 0 / 32%);
+  --elevation-4: 0 20px 48px rgb(0 0 0 / 42%);
+  --inset-highlight: inset 0 1px 0 rgb(255 255 255 / 4%);
+
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-popover: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-critical-banner: 60;
+
+  --color-cyan-400: #3CD7E8;
+  --color-cyan-500: #1FC0D4;
+  --color-cyan-600: #12A0B5;
+  --color-on-brand: #03181C;
+  --color-gold-300: #E9CB86;
+  --color-gold-400: #D9AE55;
+  --color-gold-500: #C2963B;
+  --color-gold-gradient: linear-gradient(135deg, #E9CB86 0%, #C2963B 55%, #E9CB86 100%);
+  --color-critical: #FF4D5E;
+  --color-high: #FF8A3D;
+  --color-medium: #F4C23E;
+  --color-low: #4DA3FF;
+  --color-info: #8FA1BD;
+  --color-success: #2FD08A;
+  --color-warning: #F4C23E;
+  --color-offline: #70829E;
+  --color-syncing: #3CD7E8;
+
+  --canvas: #060A11;
+  --base: #0A101A;
+  --surface-1: #0E1623;
+  --surface-2: #131D2E;
+  --surface-3: #192640;
+  --border-subtle: #1C2A40;
+  --border-default: #263650;
+  --border-strong: #364A6B;
+  --text-primary: #EAF0F8;
+  --text-secondary: #A3B3CB;
+  --text-tertiary: #70829E;
+  --text-disabled: #4A5A74;
+  --brand: #1FC0D4;
+  --focus: #3CD7E8;
+  --severity-critical: #FF4D5E;
+  --severity-high: #FF8A3D;
+  --severity-medium: #F4C23E;
+  --severity-low: #4DA3FF;
+  --severity-info: #8FA1BD;
+  --status-success: #2FD08A;
+  --status-offline: #70829E;
+  --status-syncing: #3CD7E8;
+  --status-warning: #F4C23E;
+  --surface-glass: rgb(19 29 46 / 72%);
+  --selection: rgb(31 192 212 / 28%);
+  --scrollbar-track: #0A101A;
+  --scrollbar-thumb: #364A6B;
+  --shadow-border: 0 0 0 1px var(--border-subtle);
+}
+
+:root[data-theme="ivory"] {
+  color-scheme: light;
+  --canvas: #EEF2F7;
+  --base: #EEF2F7;
+  --surface-1: #FFFFFF;
+  --surface-2: #F6F8FB;
+  --surface-3: #E8EEF6;
+  --border-subtle: #D5DDE8;
+  --border-default: #D5DDE8;
+  --border-strong: #AAB8CC;
+  --text-primary: #0B1424;
+  --text-secondary: #44556F;
+  --text-tertiary: #6B7C95;
+  --text-disabled: #73829A;
+  --brand: #0B8CA0;
+  --focus: #0B8CA0;
+  --color-gold-300: #9A7424;
+  --color-gold-400: #9A7424;
+  --color-gold-500: #9A7424;
+  --color-gold-gradient: linear-gradient(135deg, #9A7424 0%, #9A7424 55%, #9A7424 100%);
+  --severity-critical: #D6293F;
+  --severity-high: #D9650F;
+  --severity-medium: #B88A00;
+  --severity-low: #1F6FD1;
+  --severity-info: #5B6E8B;
+  --status-success: #11875A;
+  --status-offline: #5B6E8B;
+  --status-syncing: #0B8CA0;
+  --status-warning: #B88A00;
+  --surface-glass: rgb(246 248 251 / 88%);
+  --selection: rgb(11 140 160 / 16%);
+  --scrollbar-track: #EEF2F7;
+  --scrollbar-thumb: #AAB8CC;
+  --inset-highlight: inset 0 1px 0 rgb(255 255 255 / 72%);
+}
+
+:root[data-theme="high-contrast"] {
+  color-scheme: dark;
+  --canvas: #000000;
+  --base: #000000;
+  --surface-1: #000000;
+  --surface-2: #000000;
+  --surface-3: #111111;
+  --border-subtle: #FFFFFF;
+  --border-default: #FFFFFF;
+  --border-strong: #FFFFFF;
+  --text-primary: #FFFFFF;
+  --text-secondary: #FFFFFF;
+  --text-tertiary: #FFFFFF;
+  --text-disabled: #BDBDBD;
+  --brand: #00E5FF;
+  --focus: #00E5FF;
+  --severity-critical: #FF6B78;
+  --severity-high: #FFB16E;
+  --severity-medium: #FFE45E;
+  --severity-low: #73B8FF;
+  --severity-info: #D0D9E8;
+  --status-success: #55F0AC;
+  --status-offline: #D0D9E8;
+  --status-syncing: #00E5FF;
+  --status-warning: #FFE45E;
+  --surface-glass: #000000;
+  --selection: #173A40;
+  --scrollbar-track: #000000;
+  --scrollbar-thumb: #FFFFFF;
+}
+
+:root[data-theme="night-dim"] {
+  color-scheme: dark;
+  --canvas: #090B0E;
+  --base: #0D1014;
+  --surface-1: #12171C;
+  --surface-2: #171E24;
+  --surface-3: #202A30;
+  --border-subtle: #29343A;
+  --border-default: #35444B;
+  --border-strong: #52636A;
+  --text-primary: #E8E3D8;
+  --text-secondary: #B8B4AA;
+  --text-tertiary: #9A9B91;
+  --text-disabled: #70756F;
+  --brand: #57B7BE;
+  --focus: #73D5DA;
+  --surface-glass: rgb(23 30 36 / 90%);
+  --scrollbar-track: #0D1014;
+  --scrollbar-thumb: #52636A;
+}
+
+:root[data-density="comfortable"] {
+  --control-height: 44px;
+  --row-padding-block: 16px;
+  --panel-gap: 24px;
+  --content-gutter: 24px;
+}
+
+:root[data-density="compact"] {
+  --control-height: 36px;
+  --row-padding-block: 8px;
+  --panel-gap: 16px;
+  --content-gutter: 16px;
+}
+
+:root[data-density="wall"] {
+  --control-height: 56px;
+  --row-padding-block: 16px;
+  --panel-gap: 32px;
+  --content-gutter: 32px;
+  --type-ui: 18px;
+  --type-body: 20px;
+  --type-h4: 24px;
+}
+
+@media (min-width: 2560px) {
+  :root:not([data-density]) {
+    --control-height: 56px;
+    --row-padding-block: 16px;
+    --panel-gap: 32px;
+    --content-gutter: 32px;
+    --type-ui: 18px;
+    --type-body: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --canvas: Canvas;
+    --base: Canvas;
+    --surface-1: Canvas;
+    --surface-2: Canvas;
+    --surface-3: Highlight;
+    --border-subtle: CanvasText;
+    --border-default: CanvasText;
+    --border-strong: CanvasText;
+    --text-primary: CanvasText;
+    --text-secondary: CanvasText;
+    --text-tertiary: CanvasText;
+    --focus: Highlight;
+    --brand: Highlight;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--canvas);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 4% 0%, rgb(60 215 232 / 8%), transparent 32rem),
+    var(--canvas);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--line-normal);
+}
+
+[lang="hi"],
+:lang(hi) {
+  font-family: var(--font-hindi), var(--font-ui);
+  line-height: var(--line-hindi);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--scrollbar-track);
+  border-radius: var(--radius-pill);
+  background: var(--scrollbar-thumb);
+}
+
+.falcon-glass {
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+}
+
+.falcon-performance-mode .falcon-glass {
+  background: var(--surface-2);
+  backdrop-filter: none;
+}
+
+.falcon-kpi-card,
+.falcon-alert-active {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.falcon-kpi-card::before,
+.falcon-alert-active::before {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--canvas);
+  clip-path: polygon(0 0, 100% 100%, 100% 0);
+  content: "";
+  pointer-events: none;
+}
+
+:root[data-theme="high-contrast"] body {
+  background: var(--canvas);
+}

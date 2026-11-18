@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" role="img" aria-labelledby="title">
+  <title id="title">FALCON — Every camera, intelligent.</title>
+  <g transform="translate(0 8)">
+    <path fill="#3CD7E8" d="M4 10 38 23 18 30 4 10Zm0 50 34-13-20-7L4 60Z"/>
+    <path fill="#EAF0F8" d="m24 31 34-14-14 20 14 14-34-14 10-3-10-3Z"/>
+  </g>
+  <text x="78" y="52" fill="#EAF0F8" font-family="Arial,sans-serif" font-size="38" font-weight="700" letter-spacing="8">FALCON</text>
+</svg>
