@@ -7,6 +7,12 @@ venv/
 # Node
 node_modules/
 dist/
+.npm/
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Secrets (never commit)
 .env
