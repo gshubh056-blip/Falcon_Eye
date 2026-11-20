@@ -12,6 +12,7 @@ technical authority are documented in:
 - [Technical Requirements Document](docs/TRD.md)
 - [Master Implementation Plan](docs/IMPLEMENTATION/01_IMPLEMENTATION_PLAN.md)
 - [Implementation Guide](docs/guide/README.md)
+- [Contribution Guidelines](CONTRIBUTING.md)
 
 ## Repository layout
 
@@ -28,5 +29,5 @@ technical authority are documented in:
 - `docs/` - specifications, decisions, guides, and evidence
 
 Do not commit secrets, model weights, datasets, camera credentials, or
-operational media. Use the ignore policy in `.gitignore` and the planned
-`.env.example` once it is added.
+operational media. Use the ignore policy in `.gitignore` and `.env.example` for
+local configuration names and safe dummy values.

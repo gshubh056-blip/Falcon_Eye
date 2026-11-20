@@ -10,12 +10,16 @@ dependencies = [
   "psycopg[binary]==3.2.3",
   "redis==5.2.1",
   "paho-mqtt==2.1.0",
+  "alembic==1.14.1",
+  "sqlalchemy==2.0.36",
+  "opencv-python-headless==4.10.0.84",
 ]
 
 [dependency-groups]
 dev = [
   "pytest==8.3.4",
   "pytest-cov==6.0.0",
+  "httpx==0.28.1",
   "ruff==0.8.4",
   "mypy==1.14.1",
   "pre-commit==4.0.1",
@@ -24,6 +28,7 @@ dev = [
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
+pythonpath = ["apps/capture-node"]
 
 [tool.ruff]
 target-version = "py312"

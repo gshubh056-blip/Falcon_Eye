@@ -9,7 +9,9 @@
 
 ## 1. Repository layout and delivery plan
 
-The requested backend spans multiple services. This schema-first increment creates the architecture/assumption docs, ERD and SQL bootstrap. It does not claim the API, CV workers, deployment files or tests are implemented yet.
+The requested backend spans multiple services. The schema-first increment established the architecture/assumption docs, ERD
+and SQL bootstrap. A reversible Alembic baseline and synthetic local seed are
+now validated; API, CV workers and production deployment are separate tasks.
 
 ```text
 Falcon_Eye/
@@ -38,7 +40,7 @@ Falcon_Eye/
 ### Delivery sequence
 
 1. Establish canonical data contracts and database schema (this increment).
-2. Implement Alembic migrations and database integration tests against PostgreSQL 16/TimescaleDB.
+2. Keep schema evolution in ordered Alembic revisions and validate upgrades/downgrades against PostgreSQL 16/TimescaleDB.
 3. Implement auth/RBAC, audit chain, and P0 API-001–015, API-019–022, API-025–030.
 4. Implement camera and inference workers; preserve shared detection/track schemas.
 5. Add zone/rule, evidence, alert and offline synchronization services.
@@ -166,20 +168,23 @@ The site-local node remains authoritative for local event creation during HQ out
 - File upload must validate size, format, checksum and signature; SSRF-safe camera and webhook validation is required.
 - External permissioned chain is optional; local hash chain works without Internet or cloud.
 
-## 8. Required validation before calling schema runnable
+## 8. Schema validation evidence
 
-`db/schema.sql` targets PostgreSQL 16 plus a compatible TimescaleDB extension. This environment has Python 3.14.6 but no PostgreSQL client or Docker, so database execution has not been verified here. Before deployment:
+`db/schema.sql` was applied on 2026-11-19 to a clean disposable
+`timescale/timescaledb:2.17.2-pg16` container using
+[`db/validation/validate_schema.ps1`](../db/validation/validate_schema.ps1).
+Assertions passed for all six hypertables, their partition-time primary-key
+columns, the alert-to-event foreign key, the alert status/severity index, and
+the configured compression and retention policies. The temporary container
+and data directory were removed. See the [validation record](../db/validation/README.md).
 
-1. Create a clean PostgreSQL 16 database with the approved TimescaleDB extension/image.
-2. From PowerShell, set `DATABASE_URL` to that database and run:
+This validates schema application and configured policies only; it does not
+prove that retention deletion has run, that production application roles have
+the intended privileges, or that workload performance is acceptable. Before
+production:
 
-   ```powershell
-   psql "$env:DATABASE_URL" --set ON_ERROR_STOP=on --file db/schema.sql
-   ```
-
-3. Confirm the SQL completes without errors and inspect `\dt`, `\d+ events`, and `\d+ detections`.
-4. Confirm hypertable creation, composite foreign keys, compression, retention and continuous aggregate policies against the pinned TimescaleDB image.
-5. Convert the bootstrap DDL into ordered Alembic migrations with upgrade/downgrade tests.
-6. Add integration tests for DB-001–004, data retention and legal hold.
-7. Run DB role tests proving app roles cannot update/delete audit or ledger rows.
+1. Validate each new Alembic revision against a clean database; the baseline lifecycle is recorded in [F1-02 validation](../db/validation/README.md).
+2. Exercise retention and legal-hold behavior with disposable test records.
+3. Run DB role tests proving app roles cannot update/delete audit or ledger rows.
+4. Record compression, retention, hypertable key, and FK behavior for the selected image.
 

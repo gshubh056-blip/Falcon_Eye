@@ -1,0 +1,1 @@
+"""Camera frame capture interfaces."""

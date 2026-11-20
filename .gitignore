@@ -18,6 +18,10 @@ dist/
 .env
 *.pem
 *.key
+*.sqlite
+*.sqlite3
+*.db
+*.tsbuildinfo
 
 # Big files
 *.pt
