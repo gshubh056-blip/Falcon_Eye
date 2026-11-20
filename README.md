@@ -1,7 +1,6 @@
 # FALCON EYE
 
-FALCON EYE is a Smart India Hackathon 2026 perimeter and border-monitoring
-platform. This repository contains the implementation monorepo for capture,
+This repository contains the implementation monorepo for capture,
 inference, tracking, alerting, synchronization, the dashboard, database, and
 deployment assets.
 
