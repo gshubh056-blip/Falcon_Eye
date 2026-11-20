@@ -37,3 +37,8 @@ project license decision and model/data provenance review are recorded.
 weights, and training-data provenance have separately documented terms, rather
 than introducing unresolved AGPL obligations. No alternative is approved yet;
 do not treat this recommendation as permission to download or deploy a model.
+
+The dashboard may use an in-browser COCO-SSD demo for interface validation only.
+It must remain labeled as demo inference, must not be used for security decisions,
+and must not be represented as an approved FALCON detector. The approved model
+registry, license, provenance, benchmark, and rollback gates still apply.

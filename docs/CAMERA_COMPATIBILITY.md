@@ -13,12 +13,17 @@ validate object detection or analytics performance.
 | RTSP camera / NVR | RTSP | Not implemented | F2-02 pending; no device/profile compatibility claim |
 | ONVIF camera | Discovery/PTZ | Not implemented | F2-02 pending; no discovery, authentication or PTZ claim |
 | Browser camera (`getUserMedia`) | Local browser permission and media stream | Preview and local pixel-motion demo implemented; hardware verification pending | Frames stay in the tab; motion regions are not person/vehicle detections and are not sent to the API. No browser-to-capture transport or public camera endpoint exists. |
+| Browser/USB enumerated camera | OS media device through `getUserMedia` | Demo preview and COCO-SSD person counting implemented | Requires browser permission and a named tested device; results are demo-only and not a production benchmark. |
+| Phone HTTP stream | Browser `<video>` URL or capture adapter | HTTP URL supported by the demo UI; physical compatibility depends on the stream format | Credentials/tokens embedded in the URL are rejected; HTTPS mixed-content restrictions apply. |
+| Local video file | Browser Blob URL | Supported for replay/demo | File stays local and is not uploaded by the browser preview. |
+| RTSP CCTV/NVR | RTSP through capture/relay adapter | Not implemented in the browser | Requires an edge RTSP adapter and MediaMTX or equivalent relay; no universal compatibility claim. |
+| ONVIF CCTV | ONVIF discovery/PTZ plus edge capture | Not implemented | Requires tested device profiles, authentication, and an adapter. |
 
 The browser motion overlay compares adjacent low-resolution frames and can react
-to lighting changes, camera shake, or ordinary movement. Its local activity list
-is a demonstration aid, not a security alert or object detector. It must not be
-used to claim person/vehicle accuracy; the approved model, weights, and dataset
-provenance gate remains in force.
+to lighting changes, camera shake, or ordinary movement. TensorFlow COCO-SSD
+provides a demo person count and boxes only; it is not an approved production
+detector or a person/vehicle accuracy claim. The licensed model, weights,
+training-data provenance, benchmark, and registry gate remains in force.
 
 The current capture CLI is a local development tool. Browser access must remain
 behind explicit camera permission and authenticated operator access; do not

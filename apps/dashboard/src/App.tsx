@@ -99,6 +99,27 @@ export function App() {
     fetchJson<{ items: Camera[] }>("/api/v1/cameras")
       .then((payload) => setCameras(payload.items))
       .catch(() => setCameras([]));
+    fetchJson<{
+      items: Array<{
+        id: string;
+        name: string;
+        source_type: string;
+        source_url: string;
+        status: string;
+      }>;
+    }>("/api/v1/camera-configs")
+      .then((payload) => {
+        if (payload.items.length === 0) return;
+        setCameras(payload.items.map((camera) => ({
+          id: camera.id,
+          name: camera.name,
+          status: camera.status,
+          protocol: camera.source_type,
+          camera_type: camera.source_type,
+          label: camera.source_url || "Local source",
+        })));
+      })
+      .catch(() => undefined);
 
     fetchJson<{ items: EventRecord[] }>("/api/v1/events")
       .then((payload) => setEvents(payload.items))
@@ -446,6 +467,18 @@ function CamerasView({
               <div><dt>Mode</dt><dd>{camera.camera_type}</dd></div>
               <div><dt>Source</dt><dd>{camera.label}</dd></div>
             </dl>
+            {camera.id !== "synthetic-camera-001" && (
+              <button
+                className="text-button"
+                onClick={() => {
+                  void fetch(`http://127.0.0.1:8000/api/v1/camera-configs/${camera.id}`, {
+                    method: "DELETE",
+                  }).then(() => window.location.reload());
+                }}
+              >
+                Remove saved camera
+              </button>
+            )}
           </article>
         ))}
       </div>
@@ -467,6 +500,10 @@ function BrowserCameraPreview() {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
+  const [sourceType, setSourceType] = useState("browser");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [sourceName, setSourceName] = useState("");
+  const [videoSourceUrl, setVideoSourceUrl] = useState("");
   const [status, setStatus] = useState("Permission not requested");
   const [cameraError, setCameraError] = useState("");
   const [videoAspectRatio, setVideoAspectRatio] = useState("16 / 9");
@@ -486,14 +523,17 @@ function BrowserCameraPreview() {
     if (!video) return;
 
     video.srcObject = stream;
-    if (!stream) return;
+    if (!stream && videoSourceUrl) {
+      video.src = videoSourceUrl;
+    }
+    if (!stream && !videoSourceUrl) return;
 
     void video.play().catch(() => {
       if (video.srcObject !== stream) return;
       setStatus("Preview unavailable");
       setCameraError("The camera connected, but the browser could not start video playback.");
     });
-  }, [stream]);
+  }, [stream, videoSourceUrl]);
 
   useEffect(() => {
     let active = true;
@@ -523,7 +563,7 @@ function BrowserCameraPreview() {
   );
 
   useEffect(() => {
-    if (!stream) return;
+    if (!stream && !videoSourceUrl) return;
 
     const canvas = document.createElement("canvas");
     canvas.width = motionFrameWidth;
@@ -679,12 +719,13 @@ function BrowserCameraPreview() {
       motionBaselineRef.current = null;
       consecutiveMotionFramesRef.current = 0;
     };
-  }, [stream]);
+  }, [stream, videoSourceUrl]);
 
   const stopCamera = () => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     setStream(null);
+    setVideoSourceUrl("");
     setStatus("Stopped");
     setCameraError("");
     setMotionStatus("Waiting for camera");
@@ -697,6 +738,29 @@ function BrowserCameraPreview() {
 
   const startCamera = async () => {
     setCameraError("");
+    if (sourceType === "rtsp" || sourceType === "onvif") {
+      setStatus("Source adapter unavailable");
+      setCameraError(
+        `${sourceType.toUpperCase()} requires an edge capture adapter and has not been implemented or tested.`,
+      );
+      return;
+    }
+    if (sourceType === "phone" || sourceType === "video") {
+      if (!sourceUrl) {
+        setStatus("Source not configured");
+        setCameraError(
+          sourceType === "phone"
+            ? "Enter an HTTP(S) phone stream URL."
+            : "Choose a local video file.",
+        );
+        return;
+      }
+      setStream(null);
+      setVideoSourceUrl(sourceUrl);
+      setStatus(`Connected · ${sourceType} source`);
+      setMotionStatus("Monitoring source");
+      return;
+    }
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
       setStatus("Unavailable");
       setCameraError("Camera access requires localhost or a secure HTTPS page.");
@@ -763,12 +827,12 @@ function BrowserCameraPreview() {
           <h3>Laptop, USB, or phone-as-webcam</h3>
           <p>Start only when ready; your browser may ask for camera permission.</p>
         </div>
-        <span className={`asset-status ${stream ? "connected" : "disconnected"}`}>
+        <span className={`asset-status ${stream || videoSourceUrl ? "connected" : "disconnected"}`}>
           {status}
         </span>
       </div>
-      <div className="camera-preview-window" style={{ aspectRatio: stream ? videoAspectRatio : undefined }}>
-        {stream ? (
+      <div className="camera-preview-window" style={{ aspectRatio: stream || videoSourceUrl ? videoAspectRatio : undefined }}>
+        {stream || videoSourceUrl ? (
           <>
             <video
               ref={videoRef}
@@ -824,6 +888,58 @@ function BrowserCameraPreview() {
       </div>
       <div className="camera-preview-controls">
         <label className="camera-select">
+          Camera name
+          <input
+            value={sourceName}
+            onChange={(event) => setSourceName(event.target.value)}
+            placeholder="Perimeter camera 1"
+          />
+        </label>
+        <label className="camera-select">
+          Source type
+          <select
+            value={sourceType}
+            onChange={(event) => {
+              setSourceType(event.target.value);
+              setSourceUrl("");
+              setVideoSourceUrl("");
+              stopCamera();
+            }}
+          >
+            <option value="browser">Browser camera</option>
+            <option value="usb">USB camera</option>
+            <option value="phone">Phone HTTP stream</option>
+            <option value="video">Video file</option>
+            <option value="rtsp">RTSP CCTV · adapter required</option>
+            <option value="onvif">ONVIF CCTV · adapter required</option>
+          </select>
+        </label>
+        {sourceType === "phone" && (
+          <label className="camera-select">
+            Phone stream URL
+            <input
+              type="url"
+              value={sourceUrl}
+              onChange={(event) => setSourceUrl(event.target.value)}
+              placeholder="http://192.168.1.20:8080/video"
+            />
+          </label>
+        )}
+        {sourceType === "video" && (
+          <label className="camera-select">
+            Video file
+            <input
+              type="file"
+              accept="video/*"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                setSourceUrl(URL.createObjectURL(file));
+              }}
+            />
+          </label>
+        )}
+        <label className="camera-select">
           Camera device
           <select
             value={selectedDeviceId}
@@ -856,6 +972,32 @@ function BrowserCameraPreview() {
             {status === "Requesting camera permission" ? "Requesting camera…" : "Start camera"}
           </button>
         )}
+        {stream || videoSourceUrl ? (
+          <button
+            className="button secondary"
+            disabled={!sourceName.trim() || sourceType === "rtsp" || sourceType === "onvif"}
+            onClick={() => {
+              void fetch("http://127.0.0.1:8000/api/v1/camera-configs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  name: sourceName,
+                  source_type: sourceType,
+                  source_url: sourceType === "phone"
+                    ? sourceUrl
+                    : "",
+                }),
+              }).then(async (response) => {
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.detail ?? "Could not save camera");
+                setCameraError("");
+                setStatus("Connected · saved");
+              }).catch((error: Error) => setCameraError(error.message));
+            }}
+          >
+            Save camera
+          </button>
+        ) : null}
       </div>
       <div className="detector-gate" role="note">
         <strong>TensorFlow COCO person detection is active · vehicle detection is also available.</strong>

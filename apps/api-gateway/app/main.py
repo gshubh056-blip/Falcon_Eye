@@ -7,6 +7,7 @@ from base64 import b64decode
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager, suppress
 from copy import deepcopy
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -40,7 +41,7 @@ app.add_middleware(
         "http://localhost:4173",
     ],
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -102,6 +103,12 @@ class CameraFrameSubmission(BaseModel):
     idempotency_key: str = Field(min_length=1, max_length=128)
 
 
+class CameraConfigSubmission(BaseModel):
+    name: str = Field(min_length=1, max_length=128)
+    source_type: str = Field(pattern=r"^(browser|usb|phone|video|rtsp|onvif)$")
+    source_url: str = Field(max_length=2048)
+
+
 def detection_database_path() -> Path:
     import os
 
@@ -115,6 +122,19 @@ def init_detection_database() -> None:
     database_path = detection_database_path()
     database_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(database_path) as connection:
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS camera_configs (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                source_type TEXT NOT NULL,
+                source_url TEXT NOT NULL,
+                status TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS detections (
@@ -369,6 +389,89 @@ async def cameras() -> dict[str, list[dict[str, object]]]:
 @app.get("/api/v1/detections")
 async def detections() -> dict[str, list[dict[str, object]]]:
     return {"items": detection_rows()}
+
+
+@app.get("/api/v1/camera-configs")
+async def camera_configs() -> dict[str, list[dict[str, object]]]:
+    init_detection_database()
+    with sqlite3.connect(detection_database_path()) as connection:
+        connection.row_factory = sqlite3.Row
+        rows = connection.execute(
+            """
+            SELECT id, name, source_type, source_url, status, created_at, updated_at
+            FROM camera_configs
+            ORDER BY created_at DESC
+            """
+        ).fetchall()
+    return {"items": [dict(row) for row in rows]}
+
+
+@app.post("/api/v1/camera-configs", response_model=None)
+async def add_camera_config(
+    submission: CameraConfigSubmission,
+) -> dict[str, object] | JSONResponse:
+    source_type = submission.source_type
+    source_url = submission.source_url.strip()
+    if source_type in {"rtsp", "onvif"}:
+        return JSONResponse(
+            status_code=501,
+            content={
+                "detail": f"{source_type.upper()} capture requires a tested edge adapter.",
+                "code": "source_not_implemented",
+            },
+        )
+    if source_type == "phone" and not source_url:
+        return JSONResponse(
+            status_code=422,
+            content={"detail": "Phone stream URL is required", "code": "source_url_required"},
+        )
+    camera_id = str(uuid4())
+    now = datetime.now(UTC).isoformat()
+    init_detection_database()
+    with sqlite3.connect(detection_database_path()) as connection:
+        connection.execute(
+            """
+            INSERT INTO camera_configs
+                (id, name, source_type, source_url, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                camera_id,
+                submission.name,
+                source_type,
+                source_url,
+                "configured",
+                now,
+                now,
+            ),
+        )
+    return {
+        "item": {
+            "id": camera_id,
+            "name": submission.name,
+            "source_type": source_type,
+            "source_url": source_url,
+            "status": "configured",
+            "created_at": now,
+            "updated_at": now,
+        }
+    }
+
+
+@app.delete("/api/v1/camera-configs/{camera_id}", response_model=None)
+async def delete_camera_config(camera_id: str) -> dict[str, object] | JSONResponse:
+    init_detection_database()
+    with sqlite3.connect(detection_database_path()) as connection:
+        result = connection.execute(
+            "DELETE FROM camera_configs WHERE id = ?",
+            (camera_id,),
+        )
+        if result.rowcount == 0:
+            return JSONResponse(
+                status_code=404,
+                content={"detail": "Camera configuration not found", "code": "camera_not_found"},
+            )
+    return {"deleted": camera_id}
 
 
 @app.post("/api/v1/camera-frame", response_model=None)

@@ -83,6 +83,61 @@ def test_preview_origin_can_call_api(monkeypatch):
     assert response.headers["access-control-allow-origin"] == origin
 
 
+@pytest.mark.parametrize("source_type", ["rtsp", "onvif"])
+def test_unimplemented_cctv_adapters_are_explicit(monkeypatch, tmp_path, source_type):
+    demo_environment(monkeypatch)
+    monkeypatch.setenv("FALCON_DETECTION_DB_PATH", str(tmp_path / "detections.sqlite3"))
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/camera-configs",
+            json={
+                "name": f"Test {source_type}",
+                "source_type": source_type,
+                "source_url": f"{source_type}://camera",
+            },
+        )
+    assert response.status_code == 501
+    assert response.json()["code"] == "source_not_implemented"
+
+
+def test_camera_config_persists(monkeypatch, tmp_path):
+    demo_environment(monkeypatch)
+    monkeypatch.setenv("FALCON_DETECTION_DB_PATH", str(tmp_path / "detections.sqlite3"))
+    with TestClient(app) as client:
+        created = client.post(
+            "/api/v1/camera-configs",
+            json={
+                "name": "Phone Camera",
+                "source_type": "phone",
+                "source_url": "http://192.168.1.20:8080/video",
+            },
+        )
+        listed = client.get("/api/v1/camera-configs")
+    assert created.status_code == 200
+    assert listed.status_code == 200
+    assert listed.json()["items"][0]["name"] == "Phone Camera"
+
+
+def test_camera_config_delete(monkeypatch, tmp_path):
+    demo_environment(monkeypatch)
+    monkeypatch.setenv("FALCON_DETECTION_DB_PATH", str(tmp_path / "detections.sqlite3"))
+    with TestClient(app) as client:
+        created = client.post(
+            "/api/v1/camera-configs",
+            json={
+                "name": "USB Camera",
+                "source_type": "usb",
+                "source_url": "",
+            },
+        )
+        camera_id = created.json()["item"]["id"]
+        deleted = client.delete(f"/api/v1/camera-configs/{camera_id}")
+        missing = client.delete(f"/api/v1/camera-configs/{camera_id}")
+
+    assert deleted.status_code == 200
+    assert missing.status_code == 404
+
+
 def test_camera_frame_person_analysis_persists(monkeypatch, tmp_path):
     demo_environment(monkeypatch)
     monkeypatch.setenv("FALCON_DETECTION_DB_PATH", str(tmp_path / "detections.sqlite3"))
